@@ -67,7 +67,7 @@ async def index(req : Request):
     return templates.TemplateResponse("home.html", {"request" : req})
 # 캡쳐된 이미지를 실시간으로 전송
 
-# 결과값을 받아와보자
+# 결과값을 받아와보자 -> 응 안돼
 result = ""
 def set_res(re):
     global result
@@ -75,35 +75,33 @@ def set_res(re):
     return result
 
 # torch model 생성, 모델을 생성해두면 속도가 훨씬 빠르다!!
-# Load fine-tuned custom model
-# model = torch.hub.load('WongKinYiu/yolov7', 'custom', './yolov7/h_best.pt', force_reload=True, trust_repo=True)
-
 house_model = torch.load('./yolomodel/hubtmp.pth')
-tree_model = torch.load('./yolomodel/tree.pth')
+# house_model = torch.load('./yolomodel/robotmp.pth')
 
+# 시간 체크
 import math
 import time
-
 
 # 쿼리 스트링으로 아이디값 받아오기(이미지 저장 문제)
 #, response_model=Item, response_model_exclude_unset=Tru
 @app.post('/h_photo', response_model=Item, response_model_exclude_unset=True)
-async def upload_photo(file: UploadFile, user_id : str = None, q: Optional[str] = None):
+# 집 1, 나무 2, 사람 3
+async def upload_photo(file: UploadFile, cate_seq : int = 0, q: Optional[str] = None):
     UPLOAD_DIR = "./images"  # 이미지를 저장할 서버 경로
     # 시간 체크
     start = time.time()
     math.factorial(100000)
-    # 아이디값 체크
-    # if q:
-    #     user_id = user_id
-    # print(user_id)
+    # 집, 나무, 사람 체크
+    if q:
+        cate_seq = cate_seq
+    print(cate_seq)
+    
     
     # 파일 없으면 메세지 파일 없어..
     if not file:
         items = {
             "message" : "No upload file sent"
         }
-        # return {"message": "No upload file sent"}
         return items
     
     # 파일 있으면
@@ -193,7 +191,14 @@ async def upload_photo(file: UploadFile, user_id : str = None, q: Optional[str] 
         
         # TEST==============================================================
         
-        results = house_model(test_img)
+        # 집 모델
+        if cate_seq == 1:
+            model = house_model
+        # 나무, 사람 추후 업뎃
+        # elif cate_seq == 2:
+            # model = tree_model
+        
+        results = model(test_img)
 
         df = results.pandas().xyxy[0]
         
