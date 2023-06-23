@@ -84,15 +84,15 @@ import time
 
 # 쿼리 스트링으로 아이디값 받아오기(이미지 저장 문제)
 #, response_model=Item, response_model_exclude_unset=Tru
-@app.post('/h_photo', response_model=Item, response_model_exclude_unset=True)
+@app.post('/h_photo/{cate_seq}', response_model=Item, response_model_exclude_unset=True)
 # 집 1, 나무 2, 사람 3
-async def upload_photo(file: UploadFile, cate_seq : int = 0, q: Optional[str] = None):
+async def upload_photo(file: UploadFile, cate_seq : int = 0):
     UPLOAD_DIR = "./images"  # 이미지를 저장할 서버 경로
     # 시간 체크
     start = time.time()
     math.factorial(100000)
     # 집, 나무, 사람 체크
-    if q:
+    if cate_seq:
         cate_seq = cate_seq
     print(cate_seq)
     
@@ -190,6 +190,8 @@ async def upload_photo(file: UploadFile, cate_seq : int = 0, q: Optional[str] = 
 
         
         # TEST==============================================================
+        
+        # model = house_model
         
         # 집 모델
         if cate_seq == 1:
